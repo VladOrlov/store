@@ -1,6 +1,5 @@
 package com.jvo.store.exception;
 
-import com.google.common.collect.Lists;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,10 +50,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 + violation.getMessage();
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler(ProductNotFoundException.class)
     @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ExceptionDto handleValidationException(ResourceNotFoundException exception) {
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ExceptionDto handleValidationException(ProductNotFoundException exception) {
         return ExceptionDto.builder()
                 .errorCode(HttpStatus.NOT_FOUND.toString())
                 .messages(newArrayList(exception.getMessage()))

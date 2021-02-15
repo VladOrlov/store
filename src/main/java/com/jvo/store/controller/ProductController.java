@@ -1,9 +1,9 @@
 package com.jvo.store.controller;
 
-import com.jvo.store.dto.ProductDto;
-import com.jvo.store.dto.ProductDtoUpdate;
-import com.jvo.store.exception.ResourceNotFoundException;
+import com.jvo.store.domain.ProductDto;
+import com.jvo.store.exception.ProductNotFoundException;
 import com.jvo.store.service.ProductService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
@@ -29,42 +29,28 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductDto>> getAllProducts() {
+    public ResponseEntity<List<ProductDto>> findAllProducts() {
         return ResponseEntity.ok(productService.findAll());
     }
 
-    @GetMapping(path = "/search/by-category")
-    public ResponseEntity<List<ProductDto>> getAllProductsByCategory(@RequestParam(name = "id") String category) {
-        return ResponseEntity.ok(productService.findAllByCategory(category));
-    }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<?> getProduct(@PathVariable String id) {
+    public ResponseEntity<?> findProductById(@PathVariable String id) {
         return productService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(getResourceNotFoundException(id));
     }
 
-    @GetMapping(path = "/categories")
-    public ResponseEntity<List<String>> getProductCategories() {
-        return ResponseEntity.ok(productService.getProductCategories());
-    }
-
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addProduct(@Valid @RequestBody ProductDto productDto, Errors errors) {
-        return ResponseEntity.ok(productService.addProduct(productDto));
-    }
+    public ResponseEntity<?> createNewProduct(@Valid @RequestBody ProductDto productDto, Errors errors) {
 
-    @PutMapping(path = "/{id}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody ProductDto productDto) {
-        return productService.updateProduct(id, productDto)
-                .map(ResponseEntity::ok)
-                .orElseThrow(getResourceNotFoundException(id));
+        ProductDto product = productService.addProduct(productDto);
+        return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
 
     @PatchMapping(path = "/{id}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> patchProduct(@PathVariable String id, @RequestBody ProductDtoUpdate productDto) {
-        return productService.partiallyUpdateProduct(id, productDto)
+    public ResponseEntity<?> patchProduct(@PathVariable String id, @RequestBody ProductDto productDto) {
+        return productService.updateProduct(id, productDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(getResourceNotFoundException(id));
     }
@@ -75,7 +61,7 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    private Supplier<ResourceNotFoundException> getResourceNotFoundException(String id){
-        return () -> new ResourceNotFoundException("Resource with id: " + id + " not found!");
+    private Supplier<ProductNotFoundException> getResourceNotFoundException(String id) {
+        return () -> new ProductNotFoundException("Resource with id: " + id + " not found!");
     }
 }

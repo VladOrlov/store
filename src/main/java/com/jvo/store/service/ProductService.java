@@ -1,7 +1,6 @@
 package com.jvo.store.service;
 
-import com.jvo.store.dto.ProductDto;
-import com.jvo.store.dto.ProductDtoUpdate;
+import com.jvo.store.domain.ProductDto;
 import lombok.NonNull;
 
 import java.util.List;
@@ -11,18 +10,12 @@ public interface ProductService {
 
     List<ProductDto> findAll();
 
-    List<ProductDto> findAllByCategory(String category);
-
     Optional<ProductDto> findById(String id);
 
     ProductDto addProduct(ProductDto product);
 
-    Optional<ProductDto> updateProduct(String id, ProductDto product);
+    Optional<ProductDto> updateProduct(String id, @NonNull ProductDto productDtoUpdate);
 
     void deleteProduct(String id);
-
-    Optional<ProductDto> partiallyUpdateProduct(String id, @NonNull ProductDtoUpdate productDtoUpdate);
-
-    List<String> getProductCategories();
 
 }

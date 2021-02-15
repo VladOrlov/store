@@ -1,8 +1,7 @@
 package com.jvo.store.utils;
 
-import com.jvo.store.dto.ProductDto;
-import com.jvo.store.dto.ProductDtoUpdate;
-import com.jvo.store.model.Product;
+import com.jvo.store.domain.ProductDto;
+import com.jvo.store.domain.Product;
 import lombok.var;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-public class ObjectMapper {
+public class EntityMapper {
 
     private ModelMapper modelMapper;
 
@@ -23,20 +22,15 @@ public class ObjectMapper {
         this.modelMapper = modelMapper;
     }
 
-    public Product toEntity(ProductDto dto){
+    public Product convertToEntity(ProductDto dto){
         return modelMapper.map(dto, Product.class);
     }
 
-    public ProductDto toDto(Product entity){
+    public ProductDto convertToDto(Product entity){
         return modelMapper.map(entity, ProductDto.class);
     }
 
-    public Product updateEntity(Product entity, ProductDto dto){
-        modelMapper.map(dto, entity);
-        return entity;
-    }
-
-    public Product updateEntity(Product entity, ProductDtoUpdate dto){
+    public Product updateEntityValues(Product entity, ProductDto dto){
         modelMapper.map(dto, entity);
         return entity;
     }

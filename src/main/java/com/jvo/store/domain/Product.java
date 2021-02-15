@@ -1,7 +1,6 @@
-package com.jvo.store.model;
+package com.jvo.store.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,16 +29,9 @@ public class Product {
 
     private String description;
 
-    private String sku;
+    private Integer amountInStock;
 
-    private Integer amount;
-
-    private BigDecimal price;
-
-    @Indexed(sparse = true)
-    private String category;
-
-    private boolean active;
+    private BigDecimal unitPrice;
 
     private String imageUrl;
 
@@ -51,6 +43,5 @@ public class Product {
 
     @LastModifiedDate
     private LocalDateTime dateUpdated;
-
 
 }

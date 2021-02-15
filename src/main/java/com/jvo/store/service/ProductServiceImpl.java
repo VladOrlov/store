@@ -1,12 +1,10 @@
 package com.jvo.store.service;
 
-import com.jvo.store.dto.ProductCategory;
-import com.jvo.store.dto.ProductDto;
-import com.jvo.store.dto.ProductDtoUpdate;
-import com.jvo.store.exception.ResourceNotFoundException;
-import com.jvo.store.model.Product;
+import com.jvo.store.domain.ProductDto;
+import com.jvo.store.exception.ProductNotFoundException;
+import com.jvo.store.domain.Product;
 import com.jvo.store.repository.ProductRepository;
-import com.jvo.store.utils.ObjectMapper;
+import com.jvo.store.utils.EntityMapper;
 import lombok.NonNull;
 import lombok.var;
 import org.springframework.stereotype.Service;
@@ -20,30 +18,23 @@ import static java.util.stream.Collectors.toList;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final ObjectMapper objectMapper;
+    private final EntityMapper entityMapper;
 
-    public ProductServiceImpl(ProductRepository productRepository, ObjectMapper objectMapper) {
+    public ProductServiceImpl(ProductRepository productRepository, EntityMapper entityMapper) {
         this.productRepository = productRepository;
-        this.objectMapper = objectMapper;
+        this.entityMapper = entityMapper;
     }
 
     public List<ProductDto> findAll() {
         return productRepository.findAll().stream()
-                .map(objectMapper::toDto)
-                .collect(toList());
-    }
-
-    @Override
-    public List<ProductDto> findAllByCategory(String category) {
-        return productRepository.findAllByCategory(category).stream()
-                .map(objectMapper::toDto)
+                .map(entityMapper::convertToDto)
                 .collect(toList());
     }
 
     @Override
     public Optional<ProductDto> findById(String id) {
         return productRepository.findById(id)
-                .map(objectMapper::toDto);
+                .map(entityMapper::convertToDto);
     }
 
     @Override
@@ -52,38 +43,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ProductDto saveProduct(ProductDto product) {
-        Product entity = objectMapper.toEntity(product);
-        return objectMapper.toDto(productRepository.save(entity));
+        Product entity = entityMapper.convertToEntity(product);
+        return entityMapper.convertToDto(productRepository.save(entity));
     }
 
     @Override
-    public Optional<ProductDto> updateProduct(String id, @NonNull ProductDto productDto) {
+    public Optional<ProductDto> updateProduct(String id, @NonNull ProductDto productDtoUpdate) {
         return productRepository.findById(id)
-                .map(entity -> objectMapper.updateEntity(entity, productDto))
+                .map(entity -> entityMapper.updateEntityValues(entity, productDtoUpdate))
                 .map(productRepository::save)
-                .map(objectMapper::toDto);
-    }
-
-    @Override
-    public Optional<ProductDto> partiallyUpdateProduct(String id, @NonNull ProductDtoUpdate productDtoUpdate) {
-        return productRepository.findById(id)
-                .map(entity -> objectMapper.updateEntity(entity, productDtoUpdate))
-                .map(productRepository::save)
-                .map(objectMapper::toDto);
-    }
-
-    @Override
-    public List<String> getProductCategories() {
-        return productRepository.findDistinctByCategoryNotNull().stream()
-                .map(ProductCategory::getCategory)
-                .distinct()
-                .collect(toList());
+                .map(entityMapper::convertToDto);
     }
 
     @Override
     public void deleteProduct(String id) {
         var entity = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Resource with id: " + id + " not found!"));
+                .orElseThrow(() -> new ProductNotFoundException("Resource with id: " + id + " not found!"));
         productRepository.delete(entity);
     }
 }
